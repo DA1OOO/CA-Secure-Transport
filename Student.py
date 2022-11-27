@@ -69,4 +69,6 @@ if __name__ == '__main__':
     print('===> Get Cert2!')
     print('===> SID:', sid, 'sign finished!')
 
-    # 初始化request [SID, cert2]
+    # 初始化request 并发送到Blackboard [SID, cert2]
+    my_sokect_3 = connect_port(3141)
+    my_sokect_3.send('e'.encode())
