@@ -36,13 +36,13 @@ def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.enc
     tag += 1
     # 向客户发送回复信息。编码以发送字节类型。
     c.send(reply_msg)
-    str = c.recv(1024)
-    dec_str = str.decode()
+    recv_str = c.recv(1024)
+    dec_str = recv_str.decode()
     print("Received msg: %s" % dec_str)
     # 关闭与客户端的连接
     c.close()
     print("---------Connect close------------")
-    return str
+    return recv_str
 
 
 def generate_root_ca():
@@ -99,7 +99,7 @@ def generate_cer(req, issuer_cert, issuer_key, digest="sha256",
     return cert
 
 
-if __name__ == '__main__':
+def main():
     # 初始化socket
     my_socket = initial_socket()
     # 生成根证书
@@ -126,3 +126,7 @@ if __name__ == '__main__':
     byte_cert2 = crypto.dump_certificate(crypto.FILETYPE_PEM, cert2)
     # 将cert2通过socket发送到Student进程
     connect_accept(my_socket, tag, byte_cert2)
+
+
+if __name__ == '__main__':
+    main()

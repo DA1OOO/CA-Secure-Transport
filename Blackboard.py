@@ -2,6 +2,7 @@
 import socket
 from OpenSSL import crypto
 
+
 def initial_socket():
     print("-------- Socket Initial -----------")
     # 创建套接字
@@ -30,15 +31,16 @@ def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.enc
     tag += 1
     # 向客户发送回复信息。编码以发送字节类型。
     c.send(reply_msg)
-    str = c.recv(1024)
-    dec_str = str.decode()
+    recv_str = c.recv(1024)
+    dec_str = recv_str.decode()
     print("Received msg: %s" % dec_str)
     # 关闭与客户端的连接
     c.close()
     print("---------Connect close------------")
-    return str
+    return recv_str
 
-if __name__ == '__main__':
+
+def main():
     # 初始化socket
     my_socket = initial_socket()
     # 建立连接 保持监听
@@ -54,3 +56,7 @@ if __name__ == '__main__':
     split_msg = msg.split('|')
     sid = split_msg[0]
     cert2 = crypto.load_certificate(crypto.FILETYPE_PEM, split_msg('|')[1])
+
+
+if __name__ == '__main__':
+    main()
