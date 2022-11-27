@@ -1,5 +1,6 @@
 # Blackboard服务端 端口3141
 import socket
+from OpenSSL import crypto
 
 def initial_socket():
     print("-------- Socket Initial -----------")
@@ -48,3 +49,8 @@ if __name__ == '__main__':
         tag += 1
         if tag == 2:
             break
+    msg = byte_msg.decode()
+    # 拆分request信息 获取sid和证书部分
+    split_msg = msg.split('|')
+    sid = split_msg[0]
+    cert2 = crypto.load_certificate(crypto.FILETYPE_PEM, split_msg('|')[1])

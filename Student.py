@@ -71,4 +71,6 @@ if __name__ == '__main__':
 
     # 初始化request 并发送到Blackboard [SID, cert2]
     my_sokect_3 = connect_port(3141)
-    my_sokect_3.send('e'.encode())
+    temp_request = '===> Student: (' + sid + ') requests to upload report !' + '|' + str(byte_cert2.decode())
+    my_sokect_3.send(temp_request.encode())
+
