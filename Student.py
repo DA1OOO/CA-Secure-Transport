@@ -64,7 +64,6 @@ def main():
     # 通过socket从CUHK获取cert2
     my_socket_2 = connect_port(9335)
     byte_cert2 = my_socket_2.recv(4096)
-    cert2 = crypto.load_certificate(crypto.FILETYPE_PEM, byte_cert2)
     print('===> Get Cert2!')
     print('===> SID:', sid, 'sign finished!')
 

@@ -2,6 +2,8 @@
 import socket
 from OpenSSL import crypto
 
+CERT_FILE = 'cuhk.cer'
+
 
 def initial_socket():
     print("-------- Socket Initial -----------")
@@ -45,7 +47,6 @@ def main():
     my_socket = initial_socket()
     # 建立连接 保持监听
     tag = 1
-    byte_msg = 0
     while True:
         byte_msg = connect_accept(my_socket, tag)
         tag += 1
@@ -55,7 +56,18 @@ def main():
     # 拆分request信息 获取sid和证书部分
     split_msg = msg.split('|')
     sid = split_msg[0]
-    cert2 = crypto.load_certificate(crypto.FILETYPE_PEM, split_msg('|')[1])
+    cert2 = crypto.load_certificate(crypto.FILETYPE_PEM, split_msg[1])
+    # 对证书校验
+    with open(CERT_FILE, "r") as f:
+        # 读取CUHK根证书
+        root_cert = crypto.load_certificate(crypto.FILETYPE_PEM, f.read())
+    x509_store = crypto.X509Store()
+    x509_store.add_cert(root_cert)
+    x509_store_context = crypto.X509StoreContext(x509_store, cert2)
+    if x509_store_context.verify_certificate() is None:
+        print("===> Cert Check success！")
+    else:
+        print('===> Cert Check failed')
 
 
 if __name__ == '__main__':

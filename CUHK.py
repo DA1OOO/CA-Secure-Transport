@@ -106,7 +106,6 @@ def main():
     key_pair = generate_root_ca()
     # 建立连接 保持监听
     tag = 1
-    byte_msg = 0
     while True:
         byte_msg = connect_accept(my_socket, tag)
         tag += 1

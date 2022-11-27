@@ -43,3 +43,4 @@
 - [6] SSL/TLS: https://blog.csdn.net/vip97yigang/article/details/84721027
 - [7] Wraps pyOpenSSL for quick and easy PKI: https://github.com/LLNL/certipy
 - [8] OpenSsl.crypto Usage: https://vimsky.com/zh-tw/examples/detail/python-method-OpenSSL.crypto.html
+- [9] Definition Explain: https://blog.csdn.net/keke_Xin/article/details/84817391
