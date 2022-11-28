@@ -84,7 +84,6 @@ def main():
 
     key_pair = generate_key_pair(TYPE_RSA, 1024)
     pri_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, key_pair)
-    print(pri_key)
     csr_request = generate_crs_request(pkey=key_pair)
 
     # 序列化x509req 并发送到CUHK
@@ -97,6 +96,7 @@ def main():
     # 通过socket从CUHK获取cert2
     my_socket_2 = connect_port(9335)
     byte_cert2 = my_socket_2.recv(4096)
+    my_socket_2.close()
     print('===> Get Cert2!')
     print('===> SID:', sid, 'sign finished!')
 
@@ -106,9 +106,11 @@ def main():
     my_socket_3.send(temp_request.encode())
 
     # 通过socket从Blackboard处获取session key
+
     my_socket_4 = connect_port(3141)
-    byte_encrypted_session = my_socket_4.recv(4096)
-    print('===> Get Session Key!')
+    encrypted_session = my_socket_4.recv(4096)
+    print(encrypted_session)
+    print('===> Get Encrypted Session Key!')
 
 
 if __name__ == '__main__':

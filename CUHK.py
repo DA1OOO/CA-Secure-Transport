@@ -26,7 +26,7 @@ def initial_socket():
     return my_socket
 
 
-# 接受客户端连接，并保持监听
+# 接受客户端连接，并保持监听,同时想起发送reply_msg
 def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.encode()):
     # 与客户端建立连接。
     c, addr = my_socket.accept()

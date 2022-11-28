@@ -2,10 +2,7 @@
 import socket
 import random
 import base64
-from OpenSSL import SSL
 from OpenSSL import crypto
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives.asymmetric import rsa, padding
 from Crypto import Random
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
@@ -111,33 +108,13 @@ def main():
          'd', 'c', 'b', 'a', '!', '@', '#', '$', '%', '^', '&', '*'], 16))
     # 从证书中取出公钥
     pub_key = crypto.dump_publickey(crypto.FILETYPE_PEM, cert2.get_pubkey())
-    print(pub_key)
-    # # 生成rsa密钥
-    # pri_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    # # 从密钥中提取公钥
-    # pub_key = pri_key.public_key()
-    # # 用公钥加密
-    # encrypted_session = pub_key.encrypt(
-    #     session_key.encode(),
-    #     padding.OAEP(
-    #         mgf=padding.MGF1(algorithm=hashes.SHA256()),
-    #         algorithm=hashes.SHA256(),
-    #         label=None
-    #     )
-    # )
-    # # 用私钥解密
-    # decrypted_session = pri_key.decrypt(
-    #     encrypted_session,
-    #     padding.OAEP(
-    #         mgf=padding.MGF1(algorithm=hashes.SHA256()),
-    #         algorithm=hashes.SHA256(),
-    #         label=None
-    #     )
-    # )
-    # 发送加密后的数据到Student进程
+    # 将session key加密
+    encrypt_session_key = rsa_encryption(session_key, pub_key)
+
+    # 发送加密后的session key到Student进程
     my_socket_1 = initial_socket()
-    connect_accept(my_socket)
-    # my_socket_1.send(encrypted_session.decode())
+    # 接受客户端链接，并发送加密后的session key给客户端
+    connect_accept(my_socket_1, 0, bytes(encrypt_session_key.encode()))
 
 
 if __name__ == '__main__':
