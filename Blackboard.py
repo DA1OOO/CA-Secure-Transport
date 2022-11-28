@@ -32,8 +32,7 @@ def initial_socket():
 def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.encode()):
     # 与客户端建立连接。
     c, addr = my_socket.accept()
-
-    print('----------', 'No.', tag, 'Connect Success!', '---------')
+    print('----------Connect Success!---------')
     print('addr:', addr)
     tag += 1
     # 向客户发送回复信息。编码以发送字节类型。
@@ -106,15 +105,16 @@ def main():
     session_key = ''.join(random.sample(
         ['z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e',
          'd', 'c', 'b', 'a', '!', '@', '#', '$', '%', '^', '&', '*'], 16))
+    print('session_key: ', session_key)
     # 从证书中取出公钥
     pub_key = crypto.dump_publickey(crypto.FILETYPE_PEM, cert2.get_pubkey())
     # 将session key加密
     encrypt_session_key = rsa_encryption(session_key, pub_key)
-
-    # 发送加密后的session key到Student进程
-    my_socket_1 = initial_socket()
     # 接受客户端链接，并发送加密后的session key给客户端
-    connect_accept(my_socket_1, 0, bytes(encrypt_session_key.encode()))
+    while True:
+        msg = connect_accept(my_socket, 0, reply_msg=bytes(encrypt_session_key.encode()))
+        if msg.decode() == 'success!':
+            break
 
 
 if __name__ == '__main__':

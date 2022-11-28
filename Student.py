@@ -6,6 +6,7 @@ from OpenSSL import crypto
 from OpenSSL import SSL
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
+
 TYPE_RSA = crypto.TYPE_RSA
 
 
@@ -106,10 +107,14 @@ def main():
     my_socket_3.send(temp_request.encode())
 
     # 通过socket从Blackboard处获取session key
-
     my_socket_4 = connect_port(3141)
-    encrypted_session = my_socket_4.recv(4096)
-    print(encrypted_session)
+    encrypted_session_key = my_socket_4.recv(4096)
+    my_socket_4.send('success!'.encode())
+
+    print('encrypted_session_key:', encrypted_session_key)
+    # 解密session key
+    decrypt_session_key = rsa_decryption(encrypted_session_key.decode(), pri_key)
+    print('decrypt_session_key:', decrypt_session_key)
     print('===> Get Encrypted Session Key!')
 
 
