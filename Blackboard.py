@@ -20,7 +20,7 @@ def initial_socket():
         print("Create socket failed!，error details: %s" % (err))
     # 套接字默认端口
     port = 3141
-    # 监听本机上80端口的网络请求
+    # 监听本机上3141端口的网络请求
     my_socket.bind(('127.0.0.1', port))
     # 切换套接字到监听模式，最多阻塞5笔请求
     my_socket.listen(5)
@@ -108,12 +108,13 @@ def main():
     print('session_key: ', session_key)
     # 从证书中取出公钥
     pub_key = crypto.dump_publickey(crypto.FILETYPE_PEM, cert2.get_pubkey())
-    # 将session key加密
+    # 用公钥将session key加密
     encrypt_session_key = rsa_encryption(session_key, pub_key)
-    # 接受客户端链接，并发送加密后的session key给客户端
+
+    # 接受客户端链接，并发送加密后的session key给student进程
     while True:
         msg = connect_accept(my_socket, 0, reply_msg=bytes(encrypt_session_key.encode()))
-        if msg.decode() == 'success!':
+        if msg.decode() == 'get session key!':
             break
 
 
