@@ -1,6 +1,10 @@
 # Blackboard服务端 端口3141
 import socket
+import random
+from OpenSSL import SSL
 from OpenSSL import crypto
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
 
 CERT_FILE = 'cuhk.cer'
 
@@ -68,6 +72,37 @@ def main():
         print("===> Cert Check success！")
     else:
         print('===> Cert Check failed')
+        return
+    # 生成16位Session key, 开始准备会话
+    session_key = ''.join(random.sample(
+        ['z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e',
+         'd', 'c', 'b', 'a', '!', '@', '#', '$', '%', '^', '&', '*'], 16))
+    # 生成rsa密钥
+    pri_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    # 从密钥中提取公钥
+    pub_key = pri_key.public_key()
+    # 用公钥加密
+    encrypted_session = pub_key.encrypt(
+        session_key.encode(),
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    # 用私钥解密
+    decrypted_session = pri_key.decrypt(
+        encrypted_session,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    # 发送加密后的数据到Student进程
+    my_socket_1 = initial_socket()
+    connect_accept(my_socket)
+    # my_socket_1.send(encrypted_session.decode())
 
 
 if __name__ == '__main__':

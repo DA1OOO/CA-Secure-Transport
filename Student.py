@@ -72,6 +72,10 @@ def main():
     temp_request = '===> Student: (' + sid + ') requests to upload report !' + '|' + str(byte_cert2.decode())
     my_socket_3.send(temp_request.encode())
 
+    # 通过socket从Blackboard处获取session key
+    my_socket_4 = connect_port(3141)
+    byte_encrypted_session = my_socket_4.recv(4096)
+    print('===> Get Session Key!')
 
 if __name__ == '__main__':
     main()
