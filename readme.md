@@ -45,3 +45,4 @@
 - [8]  OpenSsl.crypto Usage: https://vimsky.com/zh-tw/examples/detail/python-method-OpenSSL.crypto.html
 - [9]  Definition Explain: https://blog.csdn.net/keke_Xin/article/details/84817391
 - [10] CA, Crypto Process: https://blog.csdn.net/gaoshan12345678910/article/details/114737953
+- [11] RSA Encryption and Decryption: https://www.jb51.net/article/244576.htm

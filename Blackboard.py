@@ -1,10 +1,14 @@
 # Blackboard服务端 端口3141
 import socket
 import random
+import base64
 from OpenSSL import SSL
 from OpenSSL import crypto
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from Crypto import Random
+from Crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
 
 CERT_FILE = 'cuhk.cer'
 
@@ -46,6 +50,34 @@ def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.enc
     return recv_str
 
 
+# RSA加密
+def rsa_encryption(text: str, public_key: bytes):
+    # 字符串指定编码（转为bytes）
+    text = text.encode('utf-8')
+    # 构建公钥对象
+    cipher_public = PKCS1_v1_5.new(RSA.importKey(public_key))
+    # 加密（bytes）
+    text_encrypted = cipher_public.encrypt(text)
+    # base64编码，并转为字符串
+    text_encrypted_base64 = base64.b64encode(text_encrypted).decode()
+    return text_encrypted_base64
+
+
+# RSA解密
+def rsa_decryption(text_encrypted_base64: str, private_key: bytes):
+    # 字符串指定编码（转为bytes）
+    text_encrypted_base64 = text_encrypted_base64.encode('utf-8')
+    # base64解码
+    text_encrypted = base64.b64decode(text_encrypted_base64)
+    # 构建私钥对象
+    cipher_private = PKCS1_v1_5.new(RSA.importKey(private_key))
+    # 解密（bytes）
+    text_decrypted = cipher_private.decrypt(text_encrypted, Random.new().read)
+    # 解码为字符串
+    text_decrypted = text_decrypted.decode()
+    return text_decrypted
+
+
 def main():
     # 初始化socket
     my_socket = initial_socket()
@@ -77,28 +109,31 @@ def main():
     session_key = ''.join(random.sample(
         ['z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e',
          'd', 'c', 'b', 'a', '!', '@', '#', '$', '%', '^', '&', '*'], 16))
-    # 生成rsa密钥
-    pri_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
-    # 从密钥中提取公钥
-    pub_key = pri_key.public_key()
-    # 用公钥加密
-    encrypted_session = pub_key.encrypt(
-        session_key.encode(),
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
-    # 用私钥解密
-    decrypted_session = pri_key.decrypt(
-        encrypted_session,
-        padding.OAEP(
-            mgf=padding.MGF1(algorithm=hashes.SHA256()),
-            algorithm=hashes.SHA256(),
-            label=None
-        )
-    )
+    # 从证书中取出公钥
+    pub_key = crypto.dump_publickey(crypto.FILETYPE_PEM, cert2.get_pubkey())
+    print(pub_key)
+    # # 生成rsa密钥
+    # pri_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+    # # 从密钥中提取公钥
+    # pub_key = pri_key.public_key()
+    # # 用公钥加密
+    # encrypted_session = pub_key.encrypt(
+    #     session_key.encode(),
+    #     padding.OAEP(
+    #         mgf=padding.MGF1(algorithm=hashes.SHA256()),
+    #         algorithm=hashes.SHA256(),
+    #         label=None
+    #     )
+    # )
+    # # 用私钥解密
+    # decrypted_session = pri_key.decrypt(
+    #     encrypted_session,
+    #     padding.OAEP(
+    #         mgf=padding.MGF1(algorithm=hashes.SHA256()),
+    #         algorithm=hashes.SHA256(),
+    #         label=None
+    #     )
+    # )
     # 发送加密后的数据到Student进程
     my_socket_1 = initial_socket()
     connect_accept(my_socket)

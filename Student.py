@@ -1,8 +1,11 @@
 ## Student客户端
 import socket
+import base64
+from Crypto import Random
 from OpenSSL import crypto
 from OpenSSL import SSL
-
+from Crypto.Cipher import PKCS1_v1_5
+from Crypto.PublicKey import RSA
 TYPE_RSA = crypto.TYPE_RSA
 
 
@@ -43,6 +46,34 @@ def generate_crs_request(pkey, digest="sha256", **name):
     return req
 
 
+# RSA加密
+def rsa_encryption(text: str, public_key: bytes):
+    # 字符串指定编码（转为bytes）
+    text = text.encode('utf-8')
+    # 构建公钥对象
+    cipher_public = PKCS1_v1_5.new(RSA.importKey(public_key))
+    # 加密（bytes）
+    text_encrypted = cipher_public.encrypt(text)
+    # base64编码，并转为字符串
+    text_encrypted_base64 = base64.b64encode(text_encrypted).decode()
+    return text_encrypted_base64
+
+
+# RSA解密
+def rsa_decryption(text_encrypted_base64: str, private_key: bytes):
+    # 字符串指定编码（转为bytes）
+    text_encrypted_base64 = text_encrypted_base64.encode('utf-8')
+    # base64解码
+    text_encrypted = base64.b64decode(text_encrypted_base64)
+    # 构建私钥对象
+    cipher_private = PKCS1_v1_5.new(RSA.importKey(private_key))
+    # 解密（bytes）
+    text_decrypted = cipher_private.decrypt(text_encrypted, Random.new().read)
+    # 解码为字符串
+    text_decrypted = text_decrypted.decode()
+    return text_decrypted
+
+
 def main():
     # 发送SID到CUHK
     sid = '1234567890'
@@ -52,6 +83,8 @@ def main():
     my_socket.close()
 
     key_pair = generate_key_pair(TYPE_RSA, 1024)
+    pri_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, key_pair)
+    print(pri_key)
     csr_request = generate_crs_request(pkey=key_pair)
 
     # 序列化x509req 并发送到CUHK
@@ -76,6 +109,7 @@ def main():
     my_socket_4 = connect_port(3141)
     byte_encrypted_session = my_socket_4.recv(4096)
     print('===> Get Session Key!')
+
 
 if __name__ == '__main__':
     main()
