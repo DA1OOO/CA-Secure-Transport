@@ -34,7 +34,6 @@ def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.enc
     c, addr = my_socket.accept()
     print('----------Connect Success!---------')
     print('addr:', addr)
-    tag += 1
     # 向客户发送回复信息。编码以发送字节类型。
     c.send(reply_msg)
     recv_str = c.recv(1024)
@@ -116,6 +115,27 @@ def main():
         msg = connect_accept(my_socket, 0, reply_msg=bytes(encrypt_session_key.encode()))
         if msg.decode() == 'get session key!':
             break
+    # 从student进程接收student用私钥解密后的session key
+    while True:
+        decrypted_session_key = connect_accept(my_socket, 0).decode()
+        if len(decrypted_session_key) > 0:
+            break
+    # 将由student解密后的session key 与自己生成的session key进行校验
+    if decrypted_session_key == session_key:
+        print("Session secure!")
+        while True:
+            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session secure!".encode()))
+            if msg == "TRUE":
+                break
+    else:
+        print("Session failed!")
+        while True:
+            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session failed!".encode()))
+            if msg == "TRUE":
+                break
+        return
+
+    #
 
 
 if __name__ == '__main__':

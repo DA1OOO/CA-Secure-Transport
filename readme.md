@@ -46,3 +46,4 @@
 - [9]  Definition Explain: https://blog.csdn.net/keke_Xin/article/details/84817391
 - [10] CA, Crypto Process: https://blog.csdn.net/gaoshan12345678910/article/details/114737953
 - [11] RSA Encryption and Decryption: https://www.jb51.net/article/244576.htm
+- [12] HMAC: https://blog.csdn.net/weixin_39850699/article/details/111421474?ops_request_misc=&request_id=&biz_id=102&utm_term=hmac

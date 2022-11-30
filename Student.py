@@ -115,7 +115,17 @@ def main():
     print('===> encrypted_session_key:', encrypted_session_key.decode())
     decrypt_session_key = rsa_decryption(encrypted_session_key.decode(), pri_key)
     print('===> decrypt_session_key:', decrypt_session_key)
-    print('===> Get Encrypted Session Key!')
+    # 将解密后的session key发送到blackboard端校验
+    my_socket_5 = connect_port(3141)
+    my_socket_5.send(bytes(decrypt_session_key.encode()))
+
+    # 等待blackboard校验session是否安全
+    my_socket_6 = connect_port(3141)
+    re_msg = my_socket_6.recv(4096).decode()
+    my_socket_6.send(bytes("TRUE".encode()))
+    print(re_msg)
+
+    # Step 6 开始发送msg + mac
 
 
 if __name__ == '__main__':
