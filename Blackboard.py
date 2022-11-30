@@ -1,4 +1,5 @@
 # Blackboard服务端 端口3141
+import hmac
 import socket
 import random
 import base64
@@ -124,18 +125,36 @@ def main():
     if decrypted_session_key == session_key:
         print("Session secure!")
         while True:
-            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session secure!".encode()))
+            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session secure!".encode())).decode()
             if msg == "TRUE":
                 break
     else:
         print("Session failed!")
         while True:
-            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session failed!".encode()))
+            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session failed!".encode())).decode()
             if msg == "TRUE":
                 break
         return
 
     #
+    tag = 0
+    while True:
+        # 收到student发送的 msg | mac
+        msg_mac = connect_accept(my_socket, 0).decode()
+        split_msg_mac = msg_mac.split('|')
+        msg = split_msg_mac[0] + '|'
+        student_mac = split_msg_mac[1]
+        if len(msg) > 0:
+            print(msg)
+            mac = hmac.new(bytes(session_key.encode()), msg.encode(), digestmod='sha256').digest()
+            base64_mac = base64.b64encode(mac).decode()
+            if student_mac == base64_mac:
+                print('(Valid message!)')
+            else:
+                print('(Invalid message!)')
+            tag += 1
+        if tag == 10:
+            break
 
 
 if __name__ == '__main__':

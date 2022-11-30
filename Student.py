@@ -1,9 +1,9 @@
 ## Student客户端
 import socket
 import base64
+import hmac
 from Crypto import Random
 from OpenSSL import crypto
-from OpenSSL import SSL
 from Crypto.Cipher import PKCS1_v1_5
 from Crypto.PublicKey import RSA
 
@@ -123,9 +123,20 @@ def main():
     my_socket_6 = connect_port(3141)
     re_msg = my_socket_6.recv(4096).decode()
     my_socket_6.send(bytes("TRUE".encode()))
-    print(re_msg)
+    if re_msg == "Session secure!":
+        print(re_msg)
+    else:
+        print(re_msg)
+        return
 
     # Step 6 开始发送msg + mac
+    for i in range(1, 11):
+        msg = ('This is No.' + str(i) + ' Message.|').encode()
+
+        mac = hmac.new(bytes(decrypt_session_key.encode()), msg, digestmod='sha256').digest()
+        base64_mac = base64.b64encode(mac)
+        my_socket_7 = connect_port(3141)
+        my_socket_7.send(msg + base64_mac)
 
 
 if __name__ == '__main__':
