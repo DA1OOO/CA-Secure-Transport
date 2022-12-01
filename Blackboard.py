@@ -12,20 +12,19 @@ CERT_FILE = 'cuhk.cer'
 
 
 def initial_socket():
-    print("-------- Socket Initial -----------")
     # 创建套接字
     try:
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("Create socket succeeded!")
+        print("=====> Create socket succeeded!")
     except socket.error as err:
-        print("Create socket failed!，error details: %s" % (err))
+        print("=====> Create socket failed!，error details: %s" % (err))
     # 套接字默认端口
     port = 3141
     # 监听本机上3141端口的网络请求
     my_socket.bind(('127.0.0.1', port))
     # 切换套接字到监听模式，最多阻塞5笔请求
     my_socket.listen(5)
-    print("Socket listening...")
+    print("=====> Socket listening...")
     return my_socket
 
 
@@ -86,10 +85,13 @@ def main():
         if tag == 2:
             break
     msg = byte_msg.decode()
+
+    print('################ Step 3 ################')
     # 拆分request信息 获取sid和证书部分
     split_msg = msg.split('|')
     sid = split_msg[0]
     cert2 = crypto.load_certificate(crypto.FILETYPE_PEM, split_msg[1])
+    print('=====> Get cert2 from Student.')
     # 对证书校验
     with open(CERT_FILE, "r") as f:
         # 读取CUHK根证书
@@ -98,25 +100,29 @@ def main():
     x509_store.add_cert(root_cert)
     x509_store_context = crypto.X509StoreContext(x509_store, cert2)
     if x509_store_context.verify_certificate() is None:
-        print("===> Cert Check success！")
+        print("=====> Cert Check success！")
     else:
-        print('===> Cert Check failed')
+        print('=====> Cert Check failed')
         return
+
+    print('################ Step 4 ################')
     # 生成16位Session key, 开始准备会话
     session_key = ''.join(random.sample(
         ['z', 'y', 'x', 'w', 'v', 'u', 't', 's', 'r', 'q', 'p', 'o', 'n', 'm', 'l', 'k', 'j', 'i', 'h', 'g', 'f', 'e',
          'd', 'c', 'b', 'a', '!', '@', '#', '$', '%', '^', '&', '*'], 16))
-    print('session_key: ', session_key)
+    print('=====> Session key: ', session_key)
     # 从证书中取出公钥
     pub_key = crypto.dump_publickey(crypto.FILETYPE_PEM, cert2.get_pubkey())
     # 用公钥将session key加密
     encrypt_session_key = rsa_encryption(session_key, pub_key)
-
+    print('=====> Session key encryption finished!')
     # 接受客户端链接，并发送加密后的session key给student进程
     while True:
         msg = connect_accept(my_socket, 0, reply_msg=bytes(encrypt_session_key.encode()))
         if msg.decode() == 'get session key!':
             break
+
+    print('################ Step 6 ################')
     # 从student进程接收student用私钥解密后的session key
     while True:
         decrypted_session_key = connect_accept(my_socket, 0).decode()
@@ -124,13 +130,13 @@ def main():
             break
     # 将由student解密后的session key 与自己生成的session key进行校验
     if decrypted_session_key == session_key:
-        print("Session secure!")
+        print("=====> Session secure!")
         while True:
             msg = connect_accept(my_socket, 0, reply_msg=bytes("Session secure!".encode())).decode()
             if msg == "TRUE":
                 break
     else:
-        print("Session failed!")
+        print("=====> Session failed!")
         while True:
             msg = connect_accept(my_socket, 0, reply_msg=bytes("Session failed!".encode())).decode()
             if msg == "TRUE":

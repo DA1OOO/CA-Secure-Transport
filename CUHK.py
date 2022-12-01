@@ -29,10 +29,6 @@ def initial_socket():
 def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.encode()):
     # 与客户端建立连接。
     c, addr = my_socket.accept()
-
-    print('----------', 'No.', tag, 'Connect Success!', '---------')
-    print('addr:', addr)
-    tag += 1
     # 向客户发送回复信息。编码以发送字节类型。
     c.send(reply_msg)
     recv_str = c.recv(1024)
@@ -40,12 +36,11 @@ def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.enc
     print("Received msg: %s" % dec_str)
     # 关闭与客户端的连接
     c.close()
-    print("---------Connect close------------")
     return recv_str
 
 
 def generate_root_ca():
-    print("------ Generate self-sign cr ------")
+    print('=====> Start generating root cert.')
     # create a key pair
     k = crypto.PKey()
     k.generate_key(crypto.TYPE_RSA, 1024)
@@ -71,9 +66,8 @@ def generate_root_ca():
     # open(join(cert_dir, KEY_FILE), "wt").write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
     with open(KEY_FILE, "wb") as f:
         f.write(crypto.dump_privatekey(crypto.FILETYPE_PEM, k))
-    print(" .cer filepath: /%s " % CERT_FILE)
-    print(" .key filepath: /%s " % KEY_FILE)
-    print("---------- Generate over ----------")
+    print("=====> cuhk.cer filepath: /%s " % CERT_FILE)
+    print("=====> cuhk.key filepath: /%s " % KEY_FILE)
     return k
 
 
@@ -124,9 +118,11 @@ def main():
     # 生成cert2
     csr_request.sign(key_pair, digest='sha256')
     cert2 = generate_cer(csr_request, root_cert, root_pri_key)
+    print('=====> Cert 2 generated.')
     byte_cert2 = crypto.dump_certificate(crypto.FILETYPE_PEM, cert2)
     # 将cert2通过socket发送到Student进程
     connect_accept(my_socket, tag, byte_cert2)
+    print('=====> Send Cert 2 to student.')
 
 
 if __name__ == '__main__':

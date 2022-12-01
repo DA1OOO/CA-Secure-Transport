@@ -8,8 +8,8 @@
 pip3 install pyopenssl
 pip3 install pycryptodome
 ```
-1. 运行`CUHK.py`, `Blackboard.py`
-2. 运行`Student.py`, 输入学生学号信息
+2. 运行`CUHK.py`, `Blackboard.py`
+3. 运行`Student.py`, 输入学生学号信息
 
 #### 服务端与客户端
 - **CUHK** ( 端口: 9335 )
@@ -20,10 +20,15 @@ pip3 install pycryptodome
 ![img_3.png](source/img_3.png)
 ![img_2.png](source/img_2.png)
 1. 在启动 `CUHK.py` 和 `Blackboard.py` 后, 这两个进程会分别保持监听端口`9335`和`3141`
-2. 同时，`CUHK.py`会生成钥匙对和根证书，将根证书与密钥分别存于本地`cuhk.cer`和`cuhk.key`位置。
-3. 运行`Student.py`，然后输入**10**位**数字**作为学生ID。
-4. `Student.py`将生成一个**密钥对**，并使用密钥对生成一个**CSR请求**。 
+2. 同时，`CUHK.py`会生成钥匙对和根证书，将根证书与密钥分别存于本地`cuhk.cer`和`cuhk.key`位置
+3. 运行`Student.py`，然后输入**10**位**数字**作为学生ID
+4. `Student.py`将生成一个**密钥对**，并使用密钥对生成一个**CSR请求**
 5. 序列化CSR请求并将其发送到`CUHK.py`（端口：9335）
+6. `CUHK.py` 拿到 `Student.py`发来的**CSR request**
+7. `CUHK.py` 对**CSR request**签名，并使用`cuhk.cer`和`cuhk.key`生成使用**cert 2**
+8. 通过Socket发送**Cert 2**到 `Student.py`
+9. `Student.py`从`CUHK.py`拿到**Cert 2** ( 端口: 9335 )
+10. 
 
 
 #### 相关参考资料

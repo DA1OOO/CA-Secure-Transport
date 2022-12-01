@@ -83,7 +83,6 @@ def main():
     my_socket.send(sid.encode())
     print(my_socket.recv(1024).decode())
     my_socket.close()
-
     key_pair = generate_key_pair(TYPE_RSA, 1024)
     pri_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, key_pair)
     csr_request = generate_crs_request(pkey=key_pair)
@@ -95,27 +94,30 @@ def main():
     print(my_socket_1.recv(1024).decode())
     my_socket_1.close()
 
+    print('################ Step 3 ################')
     # 通过socket从CUHK获取cert2
     my_socket_2 = connect_port(9335)
     byte_cert2 = my_socket_2.recv(4096)
     my_socket_2.close()
-    print('===> Get Cert2!')
-    print('===> SID:', sid, 'sign finished!')
+    print('=====> Get Cert2!')
+    print('=====> SID:', sid, 'sign finished!')
 
+    print('################ Step 3 ################')
     # 初始化request 并发送到Blackboard [SID, cert2]
     my_socket_3 = connect_port(3141)
-    temp_request = '===> Student: (' + sid + ') requests to upload report !' + '|' + str(byte_cert2.decode())
+    temp_request = 'SID: ' + sid + ' requests to upload report !' + '|' + str(byte_cert2.decode())
     my_socket_3.send(temp_request.encode())
+    print('=====> Send request to Blackboard')
 
+    print('################ Step 5 ################')
     # 通过socket从Blackboard处获取session key
     my_socket_4 = connect_port(3141)
     encrypted_session_key = my_socket_4.recv(4096)
     my_socket_4.send('get session key!'.encode())
-
     # 解密session key
-    print('===> encrypted_session_key:', encrypted_session_key.decode())
+    print('=====> encrypted_session_key:', encrypted_session_key.decode())
     decrypt_session_key = rsa_decryption(encrypted_session_key.decode(), pri_key)
-    print('===> decrypt_session_key:', decrypt_session_key)
+    print('=====> decrypt_session_key:', decrypt_session_key)
     # 将解密后的session key发送到blackboard端校验
     my_socket_5 = connect_port(3141)
     my_socket_5.send(bytes(decrypt_session_key.encode()))
@@ -131,9 +133,9 @@ def main():
         return
 
     # Step 6 开始发送msg + mac
+    print('################ Step 6 ################')
     for i in range(1, 11):
         msg = ('This is No.' + str(i) + ' Message.|').encode()
-
         mac = hmac.new(bytes(decrypt_session_key.encode()), msg, digestmod='sha256').digest()
         base64_mac = base64.b64encode(mac)
         my_socket_7 = connect_port(3141)
