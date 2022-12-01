@@ -138,8 +138,6 @@ def main():
             if msg == "TRUE":
                 break
         return
-
-    #
     tag = 0
     while True:
         # 收到student发送的 msg | mac
