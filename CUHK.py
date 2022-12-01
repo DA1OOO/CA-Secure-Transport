@@ -1,7 +1,6 @@
 # CUHK服务端 9335端口
 import socket
 from OpenSSL import crypto
-from OpenSSL import SSL
 
 CERT_FILE = "cuhk.cer"
 KEY_FILE = "cuhk.key"
@@ -26,7 +25,7 @@ def initial_socket():
 
 
 # 接受客户端连接，并保持监听,同时想起发送reply_msg
-def connect_accept(my_socket, tag, reply_msg=''.encode()):
+def connect_accept_receive(my_socket, tag, reply_msg=''.encode()):
     # 与客户端建立连接。
     c, addr = my_socket.accept()
     # 向客户发送回复信息。编码以发送字节类型。
@@ -100,7 +99,7 @@ def main():
     # 建立连接 保持监听
     tag = 1
     while True:
-        byte_msg = connect_accept(my_socket, tag)
+        byte_msg = connect_accept_receive(my_socket, tag)
         tag += 1
         if tag == 3:
             break
@@ -120,7 +119,7 @@ def main():
     print('=====> Cert 2 generated.')
     byte_cert2 = crypto.dump_certificate(crypto.FILETYPE_PEM, cert2)
     # 将cert2通过socket发送到Student进程
-    connect_accept(my_socket, tag, byte_cert2)
+    connect_accept_receive(my_socket, tag, byte_cert2)
     print('=====> Send Cert 2 to student.')
 
 

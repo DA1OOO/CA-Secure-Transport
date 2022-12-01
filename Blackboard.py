@@ -29,7 +29,7 @@ def initial_socket():
 
 
 # 接受客户端连接，并保持监听
-def connect_accept(my_socket, tag, reply_msg=''.encode()):
+def connect_accept_receive(my_socket, tag, reply_msg=''.encode()):
     # 与客户端建立连接。
     c, addr = my_socket.accept()
     # 向客户发送回复信息。编码以发送字节类型。
@@ -76,7 +76,7 @@ def main():
     # 建立连接 保持监听
     tag = 1
     while True:
-        byte_msg = connect_accept(my_socket, tag)
+        byte_msg = connect_accept_receive(my_socket, tag)
         tag += 1
         if tag == 2:
             break
@@ -114,34 +114,34 @@ def main():
     print('=====> Session key encryption finished!')
     # 接受客户端链接，并发送加密后的session key给student进程
     while True:
-        msg = connect_accept(my_socket, 0, reply_msg=bytes(encrypt_session_key.encode()))
+        msg = connect_accept_receive(my_socket, 0, reply_msg=bytes(encrypt_session_key.encode()))
         if msg.decode() == 'get session key!':
             break
 
     print('################ Step 6 ################')
     # 从student进程接收student用私钥解密后的session key
     while True:
-        decrypted_session_key = connect_accept(my_socket, 0).decode()
+        decrypted_session_key = connect_accept_receive(my_socket, 0).decode()
         if len(decrypted_session_key) > 0:
             break
     # 将由student解密后的session key 与自己生成的session key进行校验
     if decrypted_session_key == session_key:
         print("=====> Session secure!")
         while True:
-            msg = connect_accept(my_socket, 0, reply_msg=bytes("=====> Session secure!".encode())).decode()
+            msg = connect_accept_receive(my_socket, 0, reply_msg=bytes("=====> Session secure!".encode())).decode()
             if msg == "TRUE":
                 break
     else:
         print("=====> Session failed!")
         while True:
-            msg = connect_accept(my_socket, 0, reply_msg=bytes("=====> Session failed!".encode())).decode()
+            msg = connect_accept_receive(my_socket, 0, reply_msg=bytes("=====> Session failed!".encode())).decode()
             if msg == "TRUE":
                 break
         return
     tag = 0
     while True:
         # 收到student发送的 msg | mac
-        msg_mac = connect_accept(my_socket, 0).decode()
+        msg_mac = connect_accept_receive(my_socket, 0).decode()
         split_msg_mac = msg_mac.split('|')
         msg = split_msg_mac[0] + '|'
         student_mac = split_msg_mac[1]

@@ -8,3 +8,5 @@ Must start CUHK.py and Blackboard.py first, and then start the Student.py.
 After starting Student.py, enter 10 digital number as student ID.
 
 See readme.md and readme-en.md for more details.
+
+Every process can only input 1 student ID.
