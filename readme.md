@@ -2,6 +2,15 @@
 
 ![img.png](source/img.png)
 
+#### 启动流程
+1. 安装Openssl, pycrypto 库
+```shell
+pip3 install openssl
+pip3 install pycryptodome
+```
+1. 运行`CUHK.py`, `Blackboard.py`
+2. 运行`Student.py`, 输入学生学号信息
+
 #### 具体流程
 ![img_3.png](source/img_3.png)
 ![img_2.png](source/img_2.png)
