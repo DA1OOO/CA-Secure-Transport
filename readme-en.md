@@ -1,15 +1,32 @@
 # Claim
 
 ## Process of starting program
-1. Install Openssl and Pycrypto libraries
+1. Install `Openssl` and `Pycrypto` libraries
 ```shell
-pip3 install openssl
+pip3 install pyopenssl
 pip3 install pycryptodome
 ```
 2. Run `CUHK.py` and `Blackboard.py`
 3. Run `Student.py`, enter student ID
 4. Wait for the program to finish running
 
+## Server and Client
+- **CUHK** (Port: 9335)
+- **Blackboard** (Port: 3141)
+- **Student**
+
+## Program running process
+### Step 0
+1. After `CUHK.py` and `Blackboard.py` are started, these two processes keep listening on ports `9335` and `3141` respectively.
+2. At the same time, `CUHK.py` will generate key pairs and root certificates, store the root certificate and key in the local `cuhk.cer` and `cuhk.key` locations respectively.
+### Step 1
+1. Running `Student.py`, then enter **10** **digital** number as student ID.
+2. Then, it will generate a **key pair**, and use it to generate a **CSR request**.
+3. Serialize the CSR request and send it to `CUHK.py` ( port: 9335 )
+### Step 2
+1. `CUHK.py` get **CSR request** from `Student.py`.
+2. Sign CSR request and generate **cert 2**.
+3. Send back **cert 2** to `Student.py` by socket.
 
 
 ## Reference

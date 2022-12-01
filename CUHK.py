@@ -9,20 +9,19 @@ KEY_FILE = "cuhk.key"
 
 # 初始化Socket
 def initial_socket():
-    print("-------- Socket Initial -----------")
     # 创建套接字
     try:
         my_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print("Create socket succeeded!")
+        print("=====> Create socket succeeded!")
     except socket.error as err:
-        print("Create socket failed!，error details: %s" % (err))
+        print("=====> Create socket failed!，error details: %s" % (err))
     # 套接字默认端口
     port = 9335
     # 监听本机上80端口的网络请求
     my_socket.bind(('127.0.0.1', port))
     # 切换套接字到监听模式，最多阻塞5笔请求
     my_socket.listen(5)
-    print("Socket listening...")
+    print("=====> Socket listening...")
     return my_socket
 
 
@@ -100,6 +99,7 @@ def generate_cer(req, issuer_cert, issuer_key, digest="sha256",
 
 
 def main():
+    print('################ Step 0 ################')
     # 初始化socket
     my_socket = initial_socket()
     # 生成根证书
@@ -111,8 +111,10 @@ def main():
         tag += 1
         if tag == 3:
             break
+    print('################ Step 2 ################')
     # csr请求反序列化
     csr_request = crypto.load_certificate_request(crypto.FILETYPE_PEM, byte_msg)
+    print('=====> CSR Request Get.')
     # 从文件中读取根证书
     with open(CERT_FILE, "r") as f:
         root_cert = crypto.load_certificate(crypto.FILETYPE_PEM, f.read())

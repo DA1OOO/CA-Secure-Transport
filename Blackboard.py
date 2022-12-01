@@ -75,6 +75,7 @@ def rsa_decryption(text_encrypted_base64: str, private_key: bytes):
 
 
 def main():
+    print('################ Step 0 ################')
     # 初始化socket
     my_socket = initial_socket()
     # 建立连接 保持监听

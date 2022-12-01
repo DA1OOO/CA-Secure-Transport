@@ -21,10 +21,10 @@ def connect_port(port):
 
 # 用户输入
 def input_info():
-    sid = input("===> Enter your student ID: ")
+    sid = input("=====> Enter student ID (10 digit number): ")
     # 数据校验
     while len(sid) != 10 or (sid.isdecimal() is not True):
-        sid = input("===> Error input! Please input again: ")
+        sid = input("=====> Error input! Please input again: ")
     return sid
 
 
@@ -76,8 +76,9 @@ def rsa_decryption(text_encrypted_base64: str, private_key: bytes):
 
 
 def main():
+    print('################ Step 1 ################')
     # 发送SID到CUHK
-    sid = '1234567890'
+    sid = input_info()
     my_socket = connect_port(9335)
     my_socket.send(sid.encode())
     print(my_socket.recv(1024).decode())
@@ -86,7 +87,7 @@ def main():
     key_pair = generate_key_pair(TYPE_RSA, 1024)
     pri_key = crypto.dump_privatekey(crypto.FILETYPE_PEM, key_pair)
     csr_request = generate_crs_request(pkey=key_pair)
-
+    print('=====> CSR Request Generated.')
     # 序列化x509req 并发送到CUHK
     byte_csr_request = crypto.dump_certificate_request(crypto.FILETYPE_PEM, csr_request)
     my_socket_1 = connect_port(9335)
