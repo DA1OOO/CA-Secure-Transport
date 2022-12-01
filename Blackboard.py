@@ -29,19 +29,15 @@ def initial_socket():
 
 
 # 接受客户端连接，并保持监听
-def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.encode()):
+def connect_accept(my_socket, tag, reply_msg=''.encode()):
     # 与客户端建立连接。
     c, addr = my_socket.accept()
-    print('----------Connect Success!---------')
-    print('addr:', addr)
     # 向客户发送回复信息。编码以发送字节类型。
     c.send(reply_msg)
     recv_str = c.recv(1024)
     dec_str = recv_str.decode()
-    print("Received msg: %s" % dec_str)
     # 关闭与客户端的连接
     c.close()
-    print("---------Connect close------------")
     return recv_str
 
 
@@ -132,13 +128,13 @@ def main():
     if decrypted_session_key == session_key:
         print("=====> Session secure!")
         while True:
-            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session secure!".encode())).decode()
+            msg = connect_accept(my_socket, 0, reply_msg=bytes("=====> Session secure!".encode())).decode()
             if msg == "TRUE":
                 break
     else:
         print("=====> Session failed!")
         while True:
-            msg = connect_accept(my_socket, 0, reply_msg=bytes("Session failed!".encode())).decode()
+            msg = connect_accept(my_socket, 0, reply_msg=bytes("=====> Session failed!".encode())).decode()
             if msg == "TRUE":
                 break
         return
@@ -152,7 +148,7 @@ def main():
         msg = split_msg_mac[0] + '|'
         student_mac = split_msg_mac[1]
         if len(msg) > 0:
-            print(msg)
+            print('=====> receive: ', msg)
             mac = hmac.new(bytes(session_key.encode()), msg.encode(), digestmod='sha256').digest()
             base64_mac = base64.b64encode(mac).decode()
             if student_mac == base64_mac:

@@ -126,7 +126,7 @@ def main():
     my_socket_6 = connect_port(3141)
     re_msg = my_socket_6.recv(4096).decode()
     my_socket_6.send(bytes("TRUE".encode()))
-    if re_msg == "Session secure!":
+    if re_msg == "=====> Session secure!":
         print(re_msg)
     else:
         print(re_msg)
@@ -136,6 +136,7 @@ def main():
     print('################ Step 6 ################')
     for i in range(1, 11):
         msg = ('This is No.' + str(i) + ' Message.|').encode()
+        print('=====> Send:', msg.decode())
         mac = hmac.new(bytes(decrypt_session_key.encode()), msg, digestmod='sha256').digest()
         base64_mac = base64.b64encode(mac)
         my_socket_7 = connect_port(3141)

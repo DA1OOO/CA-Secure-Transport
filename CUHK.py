@@ -26,14 +26,13 @@ def initial_socket():
 
 
 # 接受客户端连接，并保持监听,同时想起发送reply_msg
-def connect_accept(my_socket, tag, reply_msg='===> Thanks for your connect!'.encode()):
+def connect_accept(my_socket, tag, reply_msg=''.encode()):
     # 与客户端建立连接。
     c, addr = my_socket.accept()
     # 向客户发送回复信息。编码以发送字节类型。
     c.send(reply_msg)
     recv_str = c.recv(1024)
     dec_str = recv_str.decode()
-    print("Received msg: %s" % dec_str)
     # 关闭与客户端的连接
     c.close()
     return recv_str
