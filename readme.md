@@ -1,4 +1,3 @@
-# Claim
 
 ## Process of starting program
 1. Install `Openssl` and `Pycrypto` libraries
